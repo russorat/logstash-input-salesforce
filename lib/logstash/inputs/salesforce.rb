@@ -96,17 +96,18 @@ class LogStash::Inputs::Salesforce < LogStash::Inputs::Base
                               :client_id      => @client_id,
                               :client_secret  => @client_secret
     end
+    obj_desc = @client.describe(@sfdc_object_name)
+    @sfdc_field_types = get_field_types(obj_desc)
     if @sfdc_fields.empty?
-      obj_desc = @client.describe(@sfdc_object_name)
-      @sfdc_field_types = get_field_types(obj_desc)
       @sfdc_fields = @sfdc_field_types.keys
     end
+
   end # def register
 
   public
   def run(queue)
     results = @client.query(get_query())
-    if results.first
+    if results and results.first
       results.each do |result|
         event = LogStash::Event.new()
         decorate(event)
@@ -148,7 +149,9 @@ class LogStash::Inputs::Salesforce < LogStash::Inputs::Base
   def get_field_types(obj_desc)
     field_types = {}
     obj_desc.fields.each do |f|
-      field_types[f.name] = f.type
+      if @sfdc_fields.empty? or @sfdc_fields.include?(f.name)
+        field_types[f.name] = f.type
+      end
     end
     @logger.debug? && @logger.debug("Field types", :field_types => field_types.to_s)
     return field_types
