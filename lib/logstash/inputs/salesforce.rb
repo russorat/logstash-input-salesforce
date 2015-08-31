@@ -74,7 +74,7 @@ class LogStash::Inputs::Salesforce < LogStash::Inputs::Base
   # These options will be added to the WHERE clause in the
   # SOQL statement. Additional fields can be filtered on by
   # adding field1 = value1 AND field2 = value2 AND...
-  config :sfdc_filters, :validate => :string, :default => "IsDeleted = false"
+  config :sfdc_filters, :validate => :string, :default => ""
   # Setting this to true will convert SFDC's NamedFields__c to named_fields__c
   config :to_underscores, :validate => :boolean, :default => false
 
@@ -118,9 +118,9 @@ class LogStash::Inputs::Salesforce < LogStash::Inputs::Base
           event_key = underscore(field) if @to_underscores
           if not value.nil?
             if field_type == 'datetime'
-              event[event_key] = Time.parse(value).strftime("%Y-%m-%d %H:%M:%S%z")
+              event[event_key] = Time.parse(value)
             elsif field_type == 'date'
-              event[event_key] = Date.parse(value).strftime("%Y-%m-%d %H:%M:%S%z")
+              event[event_key] = Date.parse(value)
             else
               event[event_key] = value
             end

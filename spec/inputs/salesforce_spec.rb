@@ -46,7 +46,7 @@ RSpec.describe LogStash::Inputs::Salesforce do
       let(:input) { LogStash::Inputs::Salesforce.new(options) }
 
       it "should build a query" do
-        expect(subject.send(:get_query)).to eq('SELECT Something FROM Lead WHERE IsDeleted = false')
+        expect(subject.send(:get_query)).to eq('SELECT Something FROM Lead')
       end
     end
 
